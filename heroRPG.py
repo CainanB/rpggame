@@ -37,31 +37,61 @@ def store():
     chosen_item = int(input(">>> "))
     return store[chosen_item - 1]
 
-# class Store:
-#     def __init__(self):
-#         self.items = []
-#     def create_tonic(self, name, cost, heal_amount):
-#         temp = Tonic(name, cost, heal_amount)
-#         self.items.append()
-# class Item:
-#     def __init__(self, name, cost):
-#         self.cost = cost
-# class Tonic(Item):
-#     def __init__(self, name, cost, heal_amount):
-#         super().__init__(name, cost)
-#         self.heal_amount = heal_amount
-#     def use(self,person):
-#         if person.currenthealth + self.heal_amount > person.health:
-#             return person.health
-#         else:
-#             return person.currenthealth + self.heal_amount
+
+
+
+class Item:
+    def __init__(self, name, cost):
+        self.name = name
+        self.cost = cost
+class Tonic(Item):
+    def __init__(self, name, cost, heal_amount):
+        super().__init__(name, cost)
+        self.heal_amount = heal_amount
+    def use(self, person):
+        if person.currenthealth + self.heal_amount > person.health:
+            return person.health
+        else:
+            return person.currenthealth + self.heal_amount
+    def list_info(self):
+        print(f"{self.name} cost: {self.cost} gold +{self.heal_amount} health")
+class Armor(Item):
+    def __init__(self, name, cost, armor_amount):
+        super().__init__(name, cost)
+        self.armor_amount = armor_amount
+    def use(self, person):
+        upgradedArmor = person.armor + self.armor_amount
+        return upgradedArmor
+    def list_info(self):
+        print(f"{self.name} cost: {self.cost} gold  +{self.armor_amount} armor")
+
+class Store:
+    def __init__(self):
+        self.items = []
+    def create_tonic(self, name, cost, heal_amount):
+        temp = Tonic(name, cost, heal_amount)
+        self.items.append(temp)
+        print("tonic created with these values")
+        print(f"{temp.name} {temp.cost} {temp.heal_amount}")
+    def create_armor(self, name, cost, armor_amount):
+        temp = Armor(name, cost, armor_amount)
+        self.items.append(temp)
+    def list_items(self):
+        for item in self.items:
+            item.list_info()
+
+
+
+store = Store()
+store.create_armor("Armor", 2, 2)
+store.create_tonic("Super Tonic", 2, 10)
+# store.list_items()
 
 
 # super_tonic = Tonic("Super Tonic", 2, 10)
 # tonic = Tonic("Tonic", 1, 3)
 
-def run_store():
-    items = []
+
 class Character:
     def __init__(self, name, health, power):
         self.name = name
