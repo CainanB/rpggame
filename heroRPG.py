@@ -8,11 +8,17 @@
 import random
 def store():
     def super_tonic():
-        return 10
+        hero.currenthealth = 10
+        print("Hero health restored to 10")
     def armor():
-        return
+        hero.armor += 1
+        print("Hero gained 1 Armor")
     def evade():
-        pass
+        if hero.evade < 10:
+            hero.evade += 2
+            print("Hero gained +2 evade")
+        else:
+            print("Cannot increase evade attribute any higher!")    
     store = [
         {"Super Tonic" : super_tonic},
         {"Armor" : armor},
@@ -37,23 +43,37 @@ class Character:
         self.name = name
         self.health = health
         self.power = power
+        self.currenthealth = health
+        self.evade = 0
+        self.armor = 0
     def attack(self,enemy):
-        enemy.health -= self.power
+        ranNum = random.randint(1,20)
+        if ranNum <= enemy.evade:
+            print("Attack missed!")
+        else:
+            attackAmountLeft = abs(enemy.armor - self.power)
+            totalAttack = self.power - enemy.armor
+            enemy.currenthealth -= totalAttack
+            print("The enemy does {} damage to you.".format(totalAttack))
+
+        
     def alive(self):
-        if self.health > 0:
+        if self.currenthealth > 0:
             return True
         else:
             return False    
     def print_status(self, enemy):
-        print("You have {} health and {} power.".format(self.health, self.power))
+        print("You have {} health and {} power.".format(self.currenthealth, self.power))
         print("The {} has {} health and {} power.".format(
-            enemy.name, enemy.health, enemy.power))
+            enemy.name, enemy.currenthealth, enemy.power))
         print()
         print("What do you want to do?")
         print(f"1. fight {enemy.name}")
         print("2. do nothing")
         print("3. flee")
+        print("4. use item")
         print("> ", end=' ')
+
 
 class Enemy(Character):
     def __init__(self, name, health, power, bounty):
@@ -63,8 +83,9 @@ class Enemy(Character):
 class Hero(Character):
     def __init__(self, name, health, power):
         super().__init__(name, health, power)
-        self.coins = 0
+        self.gold = 0
         self.items = []
+        
 
 
     def attack(self,enemy):
@@ -73,9 +94,9 @@ class Hero(Character):
         print(ranNum)
         if ranNum == 1:
             totalAttack *= 2
-            enemy.health -= totalAttack 
+            enemy.currenthealth -= totalAttack 
         else:
-            enemy.health -= totalAttack
+            enemy.currenthealth -= totalAttack
         return totalAttack
     def go_to_shop(self):
         item = store()
@@ -84,10 +105,27 @@ class Hero(Character):
             print(f"You purchased {key}")
         # print(self.items[0]["Super Tonic"]())
     def use_item(self):
-        print("Which item would you like to use")
-        for item in self.items:
-            for key in item.keys():
-                print(key)
+        if len(self.items) == 0:
+            print("You have no items to use!\n")
+        else:
+            print("Which item would you like to use")
+            for item in range(len(self.items)):
+                for key in self.items[item].keys():
+                    print(f"{item + 1}. {key}")
+            user_choice = int(input(">> "))
+            
+            for itemUsed in self.items[user_choice - 1]:
+                self.items[user_choice - 1][itemUsed]()
+            # print(f"health is {self.currenthealth}")
+            del self.items[user_choice - 1]
+    def print_stats(self):
+        print(f"""
+        Health: {self.currenthealth}
+        Power: {self.power}
+        Evade: {self.evade}
+        Armor: {self.armor}
+        Gold: {self.gold}
+        """)
 class Medic(Enemy):
     def __init__(self, name, health, power):
         super().__init__(name, health, power, 3)
@@ -95,7 +133,7 @@ class Medic(Enemy):
     def afterAttacked(self, damagedTaken):
         ranNum = random.randint(1,5)
         if ranNum == 1:
-            self.health += 2
+            self.currenthealth += 2
             print(f"{self.name} used heal and gained +2 health")
 
 class Zombie(Enemy):
@@ -113,7 +151,7 @@ class Shadow(Enemy):
     def afterAttacked(self, damagedTaken):
         ranNum = random.randint(1,10)
         if ranNum >= 1:
-            print(self.health)
+            print(self.currenthealth)
             print("Your attack missed!")
             self.health += damagedTaken
 class Giant(Enemy):
@@ -142,17 +180,28 @@ def main():
         What would you like to do?
         1.  Shop Store
         2.  Fight Enemy
+        3.  Use Item
+        4.  Print Status
         """)
         if user_choice == "1":
             hero.go_to_shop()
+        elif user_choice == "3":
+            hero.use_item()
+        elif user_choice == "2":
+            fight()
+        elif user_choice == "4":
+            hero.print_stats()
         else:
-            break 
+            pass 
         
+    
+def fight():
     enemy = enemies[random.randint(0, len(enemies) -1)]
+    enemy.currenthealth = enemy.health
     print(f">>> Random enemy is the {enemy.name} <<<")
-    while enemy.alive() and hero.alive():
+    
 
-            
+    while enemy.alive() and hero.alive():        
         hero.print_status(enemy)
         raw_input = input()
         if raw_input == "1":
@@ -166,21 +215,24 @@ def main():
                 
             if not enemy.alive():
                 print("The enemy is dead.")
-                print(f"You collected {enemy.bounty} coins for defeating {enemy.name}")
+                print(f"You collected {enemy.bounty} gold for defeating {enemy.name}")
+                
+                
         elif raw_input == "2":
             pass
         elif raw_input == "3":
             print("Goodbye.")
             break
+        elif raw_input == "4":
+            hero.use_item()
         else:
             print("Invalid input {}".format(raw_input))
 
         if enemy.alive():
             # enemy attacks hero
             enemy.attack(hero)
-            print("The enemy does {} damage to you.".format(enemy.power))
+            
             if not hero.alive():
                 print("You are dead.")
-
 
 main()
