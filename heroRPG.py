@@ -62,8 +62,9 @@ class Armor(Item):
         super().__init__(name, cost)
         self.armor_amount = armor_amount
     def use(self, person):
-        upgradedArmor = person.armor + self.armor_amount
-        return upgradedArmor
+        person.armor += self.armor_amount
+        print(f"Your new armor amount is {person.armor}")
+        
     def list_info(self):
         print(f"{self.name}, Cost: {self.cost} gold, Action: +{self.armor_amount} armor")
 
@@ -73,21 +74,24 @@ class Store:
     def create_tonic(self, name, cost, heal_amount):
         temp = Tonic(name, cost, heal_amount)
         self.items.append(temp)
-        print("tonic created with these values")
-        print(f"{temp.name} {temp.cost} {temp.heal_amount}")
+        # print("tonic created with these values")
+        # print(f"{temp.name} {temp.cost} {temp.heal_amount}")
     def create_armor(self, name, cost, armor_amount):
         temp = Armor(name, cost, armor_amount)
         self.items.append(temp)
-    def list_items(self):
+    def list_items(self, person):
         for i in range(len(self.items)):
             print(f"{i + 1}.)")
             self.items[i].list_info()
         print("Please enter number of item you would like to buy")
         chosen_item = int(input(">>> "))
         chosen_store_item = self.items[chosen_item - 1]
-        print(f"You purchased {chosen_store_item.name}")
-        hero.items.append(chosen_store_item)
-
+        if person.gold >= chosen_store_item.cost:
+            person.gold -= chosen_store_item.cost
+            print(f"You purchased {chosen_store_item.name}")
+            hero.items.append(chosen_store_item)
+        else:
+            print(f"You do not have enough gold! You only have {person.gold}")
 
 store = Store()
 store.create_armor("Armor", 2, 2)
@@ -247,7 +251,7 @@ def main():
         """)
         if user_choice == "1":
             # hero.go_to_shop()
-            store.list_items()
+            store.list_items(hero)
         elif user_choice == "3":
             hero.use_item()
         elif user_choice == "2":
