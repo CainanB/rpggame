@@ -49,12 +49,14 @@ class Tonic(Item):
         super().__init__(name, cost)
         self.heal_amount = heal_amount
     def use(self, person):
+        print(f"Health before using {person.currenthealth}")
         if person.currenthealth + self.heal_amount > person.health:
-            return person.health
+            person.currenthealth = person.health
         else:
-            return person.currenthealth + self.heal_amount
+            person.currenthealth += self.heal_amount
+        print(f"Health after using {person.currenthealth}")
     def list_info(self):
-        print(f"{self.name} cost: {self.cost} gold +{self.heal_amount} health")
+        print(f"{self.name}, Cost: {self.cost} gold, Aciton: +{self.heal_amount} health")
 class Armor(Item):
     def __init__(self, name, cost, armor_amount):
         super().__init__(name, cost)
@@ -63,7 +65,7 @@ class Armor(Item):
         upgradedArmor = person.armor + self.armor_amount
         return upgradedArmor
     def list_info(self):
-        print(f"{self.name} cost: {self.cost} gold  +{self.armor_amount} armor")
+        print(f"{self.name}, Cost: {self.cost} gold, Action: +{self.armor_amount} armor")
 
 class Store:
     def __init__(self):
@@ -77,9 +79,14 @@ class Store:
         temp = Armor(name, cost, armor_amount)
         self.items.append(temp)
     def list_items(self):
-        for item in self.items:
-            item.list_info()
-
+        for i in range(len(self.items)):
+            print(f"{i + 1}.)")
+            self.items[i].list_info()
+        print("Please enter number of item you would like to buy")
+        chosen_item = int(input(">>> "))
+        chosen_store_item = self.items[chosen_item - 1]
+        print(f"You purchased {chosen_store_item.name}")
+        hero.items.append(chosen_store_item)
 
 
 store = Store()
@@ -152,11 +159,11 @@ class Hero(Character):
         else:
             enemy.currenthealth -= totalAttack
         return totalAttack
-    def go_to_shop(self):
-        item = store()
-        self.items.append(item)
-        for key in item.keys():
-            print(f"You purchased {key}")
+    # def go_to_shop(self):
+    #     item = store()
+    #     self.items.append(item)
+    #     for key in item.keys():
+    #         print(f"You purchased {key}")
         # print(self.items[0]["Super Tonic"]())
     def use_item(self):
         if len(self.items) == 0:
@@ -164,12 +171,13 @@ class Hero(Character):
         else:
             print("Which item would you like to use")
             for item in range(len(self.items)):
-                for key in self.items[item].keys():
-                    print(f"{item + 1}. {key}")
+                print(f"{item + 1}. {self.items[item].name}")
+                # for key in self.items[item].keys():
+                #     print(f"{item + 1}. {key}")
             user_choice = int(input(">> "))
             
-            for itemUsed in self.items[user_choice - 1]:
-                self.items[user_choice - 1][itemUsed]()
+            # for itemUsed in self.items[user_choice - 1]:
+            self.items[user_choice - 1].use(hero)
             # print(f"health is {self.currenthealth}")
             del self.items[user_choice - 1]
     def print_stats(self):
@@ -238,7 +246,8 @@ def main():
         4.  Print Status
         """)
         if user_choice == "1":
-            hero.go_to_shop()
+            # hero.go_to_shop()
+            store.list_items()
         elif user_choice == "3":
             hero.use_item()
         elif user_choice == "2":
@@ -270,6 +279,7 @@ def fight():
             if not enemy.alive():
                 print("The enemy is dead.")
                 print(f"You collected {enemy.bounty} gold for defeating {enemy.name}")
+                hero.gold += enemy.bounty
                 
                 
         elif raw_input == "2":
