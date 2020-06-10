@@ -37,7 +37,31 @@ def store():
     chosen_item = int(input(">>> "))
     return store[chosen_item - 1]
 
+# class Store:
+#     def __init__(self):
+#         self.items = []
+#     def create_tonic(self, name, cost, heal_amount):
+#         temp = Tonic(name, cost, heal_amount)
+#         self.items.append()
+# class Item:
+#     def __init__(self, name, cost):
+#         self.cost = cost
+# class Tonic(Item):
+#     def __init__(self, name, cost, heal_amount):
+#         super().__init__(name, cost)
+#         self.heal_amount = heal_amount
+#     def use(self,person):
+#         if person.currenthealth + self.heal_amount > person.health:
+#             return person.health
+#         else:
+#             return person.currenthealth + self.heal_amount
 
+
+# super_tonic = Tonic("Super Tonic", 2, 10)
+# tonic = Tonic("Tonic", 1, 3)
+
+def run_store():
+    items = []
 class Character:
     def __init__(self, name, health, power):
         self.name = name
