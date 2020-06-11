@@ -21,8 +21,11 @@ class Tonic(Item):
             person.currenthealth += self.heal_amount
         print(f"Health after using {person.currenthealth}")
     def list_info(self):
-        # if self.name == "Revive Tonic"
-        print(f"{self.name}, Cost: {self.cost} gold, Action: +{self.heal_amount} health")
+        if self.name == "Revive Tonic":
+            addMessage = " Automatically used in battle when health drops below 1 HP"
+        else:
+            addMessage = ""
+        print(f"{self.name}, Cost: {self.cost} gold, Action: +{self.heal_amount} health{addMessage}")
 class Armor(Item):
     def __init__(self, name, cost, armor_amount):
         super().__init__(name, cost)
@@ -82,14 +85,17 @@ class Store:
             if person.gold >= chosen_store_item.cost:
                 person.gold -= chosen_store_item.cost
                 print(f"You purchased {chosen_store_item.name}")
-                hero.items.append(chosen_store_item)
+                if chosen_store_item.name == "Revive Tonic":
+                    hero.revive = True
+                else:    
+                    hero.items.append(chosen_store_item)
             else:
                 print(f"You do not have enough gold! You only have {person.gold}")
 
 store = Store()
 store.create_armor("Armor", 2, 2)
 store.create_tonic("Super Tonic", 2, 10)
-store.create_tonic("Revive Tonic", 5, 20)
+store.create_tonic("Revive Tonic", 2, 20)
 store.create_swap("Swap", 2)
 
 class Character:
@@ -151,8 +157,9 @@ class Hero(Character):
     def __init__(self, name, health, power):
         super().__init__(name, health, power)
         self.gold = 0
-        self.evade = 10
+        self.evade = 2
         self.items = []
+        self.revive = False
         
 
 
@@ -200,8 +207,14 @@ class Hero(Character):
         Evade: {self.evade}
         Armor: {self.armor}
         Gold: {self.gold}
-
+        Have Revive: {self.revive}
         """)
+    def use_revive(self):
+        if self.revive == True:
+            self.currenthealth = 20
+            print("Your Revive Tonic has been used")
+            print(f"Your health has been restored to {self.currenthealth}")
+            self.revive = False
 class Medic(Enemy):
     def __init__(self, name, health, power):
         super().__init__(name, health, power, 3)
@@ -242,7 +255,7 @@ hero = Hero("hero", 20, 4)
 zombie = Zombie("zombie", 10, 1)
 medic = Medic("medic", 10, 3)
 shadow = Shadow("shadow", 1, 2)
-giant = Giant("giant", 15, 4)
+giant = Giant("giant", 15, 5)
 mage = Mage("mage", 8, 4)
 enemies = [goblin,medic,giant,mage]
 
@@ -311,7 +324,10 @@ def fight():
         if enemy.alive():
             # enemy attacks hero
             enemy.attack(hero)
-            
+            if hero.currenthealth < 1 and hero.revive == True:
+                hero.use_revive()
+
+
             if not hero.alive():
                 print("You are dead.")
         if hero.swapped:
