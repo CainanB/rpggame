@@ -49,10 +49,22 @@ class Swap(Item):
         print(f"{person_2.name}'s swapped power of {person_2.power}")
     def list_info(self):
         print(f"{self.name}, Cost: {self.cost} gold, Action: Swaps Hero and Enemy Power for 1 turn")
-
+class Magic(Item):
+    def __init__(self, name, cost, damage_amount):
+        super().__init__(name, cost)
+        self.damage_amount = damage_amount
+        self.type = "Magic"
+    def use(self, person):
+        person.currenthealth -= self.damage_amount
+        print(f"You used {self.name} Magic, and did {self.damage_amount} to enemy")
+    def list_info(self):
+        print(f"{self.name} Magic, Cost: {self.cost} gold, Action: +{self.damage_amount} damage to enemy")
 class Store:
     def __init__(self):
         self.items = []
+    def create_magic(self, name, cost, damage_amount):
+        temp = Magic(name, cost, damage_amount)
+        self.items.append(temp)
     def create_tonic(self, name, cost, heal_amount):
         temp = Tonic(name, cost, heal_amount)
         self.items.append(temp)
@@ -97,6 +109,8 @@ store.create_armor("Armor", 2, 2)
 store.create_tonic("Super Tonic", 2, 10)
 store.create_tonic("Revive Tonic", 2, 20)
 store.create_swap("Swap", 2)
+store.create_magic("Fire", 2, 6)
+
 
 class Character:
     def __init__(self, name, health, power):
@@ -160,6 +174,7 @@ class Hero(Character):
         self.evade = 2
         self.items = []
         self.revive = False
+        self.current_enemy = None
         
 
 
@@ -196,6 +211,8 @@ class Hero(Character):
                 self.swapped = True
                 
                 print(f"Used Swap item, swap will take place next turn {self.swapped}")
+            elif chosen_item.type == "Magic":
+                chosen_item.use(self.current_enemy)
             else:
                 chosen_item.use(hero)
             # print(f"health is {self.currenthealth}")
@@ -287,6 +304,7 @@ def fight():
     enemy = enemies[random.randint(0, len(enemies) -1)]
     enemy.currenthealth = enemy.health
     print(f">>> Random enemy is the {enemy.name} <<<")
+    hero.current_enemy = enemy
     
 
     while enemy.alive() and hero.alive():
