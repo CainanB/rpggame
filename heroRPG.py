@@ -1,44 +1,8 @@
 #!/usr/bin/env python
 
-# In this simple RPG game, the hero fights the goblin. He has the options to:
+# In this simple RPG game, the hero fights randomly generated enemies. 
 
-# 1. fight goblin
-# 2. do nothing - in which case the goblin will attack him anyway
-# 3. flee
 import random
-# def store():
-#     def super_tonic():
-#         hero.currenthealth = 10
-#         print("Hero health restored to 10")
-#     def armor():
-#         hero.armor += 1
-#         print("Hero gained 1 Armor")
-#     def evade():
-#         if hero.evade < 10:
-#             hero.evade += 2
-#             print("Hero gained +2 evade")
-#         else:
-#             print("Cannot increase evade attribute any higher!")    
-#     store = [
-#         {"Super Tonic" : super_tonic},
-#         {"Armor" : armor},
-#         {"Evade" : evade}
-#     ]
-
-    
-    
-    
-#     for item in range(len(store)):
-#         for key in store[item].keys():
-#             print(f"{item + 1}. {key}")
-        
-
-#     print("Please enter number of item you would like to buy")
-#     chosen_item = int(input(">>> "))
-#     return store[chosen_item - 1]
-
-
-
 
 class Item:
     def __init__(self, name, cost):
@@ -67,6 +31,19 @@ class Armor(Item):
         
     def list_info(self):
         print(f"{self.name}, Cost: {self.cost} gold, Action: +{self.armor_amount} armor")
+class Swap(Item):
+    def __init__(self, name, cost):
+        super().__init__(name, cost)
+    def use(self, person_1, person_2):
+        print(f"{person_1.name}'s previous power of {person_1.power}")
+        print(f"{person_2.name}'s previous power of {person_2.power}")
+        temp_cont = person_1.power
+        person_1.power = person_2.power
+        person_2.power = temp_cont
+        print(f"{person_1.name}'s swapped power of {person_1.power}")
+        print(f"{person_2.name}'s swapped power of {person_2.power}")
+    def list_info(self):
+        print(f"{self.name}, Cost: {self.cost} gold, Action: Swaps Hero and Enemy Power for 1 turn")
 
 class Store:
     def __init__(self):
@@ -78,6 +55,9 @@ class Store:
         # print(f"{temp.name} {temp.cost} {temp.heal_amount}")
     def create_armor(self, name, cost, armor_amount):
         temp = Armor(name, cost, armor_amount)
+        self.items.append(temp)
+    def create_swap(self, name, cost):
+        temp = Swap(name, cost)
         self.items.append(temp)
     def list_items(self, person):
         for i in range(len(self.items)):
@@ -107,12 +87,7 @@ class Store:
 store = Store()
 store.create_armor("Armor", 2, 2)
 store.create_tonic("Super Tonic", 2, 10)
-# store.list_items()
-
-
-# super_tonic = Tonic("Super Tonic", 2, 10)
-# tonic = Tonic("Tonic", 1, 3)
-
+store.create_swap("Swap", 2)
 
 class Character:
     def __init__(self, name, health, power):
@@ -122,15 +97,28 @@ class Character:
         self.currenthealth = health
         self.evade = 0
         self.armor = 0
+        self.swapped = False
     def attack(self,enemy):
         ranNum = random.randint(1,20)
         if ranNum <= enemy.evade:
-            print("Attack missed!")
+            print(f"{self.name}'s attack missed!")
         else:
-            attackAmountLeft = abs(enemy.armor - self.power)
+            
             totalAttack = self.power - enemy.armor
+            if totalAttack < 0:
+                totalAttack = 0
             enemy.currenthealth -= totalAttack
             print("The enemy does {} damage to you.".format(totalAttack))
+    def swap(self, person):
+        print(f"{person.name}'s previous power of {person.power}")
+        print(f"{self.name}'s previous power of {self.power}")
+        temp_cont = self.power
+        self.power = person.power
+        person.power = temp_cont
+        print(f"{person.name}'s swapped power of {person.power}")
+        print(f"{self.name}'s swapped power of {self.power}")
+
+
 
         
     def alive(self):
@@ -160,6 +148,7 @@ class Hero(Character):
     def __init__(self, name, health, power):
         super().__init__(name, health, power)
         self.gold = 0
+        self.evade = 10
         self.items = []
         
 
@@ -192,7 +181,13 @@ class Hero(Character):
             user_choice = int(input(">> "))
             
             # for itemUsed in self.items[user_choice - 1]:
-            self.items[user_choice - 1].use(hero)
+            chosen_item = self.items[user_choice - 1]
+            if(chosen_item.name == "Swap"):
+                self.swapped = True
+                
+                print(f"Used Swap item, swap will take place next turn {self.swapped}")
+            else:
+                chosen_item.use(hero)
             # print(f"health is {self.currenthealth}")
             del self.items[user_choice - 1]
     def print_stats(self):
@@ -202,6 +197,7 @@ class Hero(Character):
         Evade: {self.evade}
         Armor: {self.armor}
         Gold: {self.gold}
+        Swapp: {self.swapped}
         """)
 class Medic(Enemy):
     def __init__(self, name, health, power):
@@ -239,19 +235,16 @@ class Mage(Enemy):
         super().__init__(name, health, power, 5)
 
 goblin = Goblin("goblin", 6, 2)
-hero = Hero("hero", 10, 5)
+hero = Hero("hero", 20, 2)
 zombie = Zombie("zombie", 10, 1)
 medic = Medic("medic", 10, 3)
 shadow = Shadow("shadow", 1, 2)
-giant = Giant("giant", 15, 6)
+giant = Giant("giant", 15, 4)
 mage = Mage("mage", 8, 4)
 enemies = [goblin,zombie,medic,shadow,giant,mage]
 
 def main():
-    # hero_health = 10
-    # hero_power = 5
-    # goblin_health = 6
-    # goblin_power = 2
+
     while True:
         user_choice = input("""
         What would you like to do?
@@ -264,6 +257,7 @@ def main():
             # hero.go_to_shop()
             store.list_items(hero)
         elif user_choice == "3":
+            # Line needs to be refactored incase swap item is used
             hero.use_item()
         elif user_choice == "2":
             fight()
@@ -279,7 +273,11 @@ def fight():
     print(f">>> Random enemy is the {enemy.name} <<<")
     
 
-    while enemy.alive() and hero.alive():        
+    while enemy.alive() and hero.alive():
+        # print(f"{hero.swapped}")
+        if hero.swapped:
+            hero.swap(enemy) 
+            
         hero.print_status(enemy)
         raw_input = input()
         if raw_input == "1":
@@ -313,5 +311,8 @@ def fight():
             
             if not hero.alive():
                 print("You are dead.")
-
+        if hero.swapped:
+            hero.swap(enemy) 
+            hero.swapped = False
+            
 main()
