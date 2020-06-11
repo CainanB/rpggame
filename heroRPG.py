@@ -6,36 +6,36 @@
 # 2. do nothing - in which case the goblin will attack him anyway
 # 3. flee
 import random
-def store():
-    def super_tonic():
-        hero.currenthealth = 10
-        print("Hero health restored to 10")
-    def armor():
-        hero.armor += 1
-        print("Hero gained 1 Armor")
-    def evade():
-        if hero.evade < 10:
-            hero.evade += 2
-            print("Hero gained +2 evade")
-        else:
-            print("Cannot increase evade attribute any higher!")    
-    store = [
-        {"Super Tonic" : super_tonic},
-        {"Armor" : armor},
-        {"Evade" : evade}
-    ]
+# def store():
+#     def super_tonic():
+#         hero.currenthealth = 10
+#         print("Hero health restored to 10")
+#     def armor():
+#         hero.armor += 1
+#         print("Hero gained 1 Armor")
+#     def evade():
+#         if hero.evade < 10:
+#             hero.evade += 2
+#             print("Hero gained +2 evade")
+#         else:
+#             print("Cannot increase evade attribute any higher!")    
+#     store = [
+#         {"Super Tonic" : super_tonic},
+#         {"Armor" : armor},
+#         {"Evade" : evade}
+#     ]
 
     
     
     
-    for item in range(len(store)):
-        for key in store[item].keys():
-            print(f"{item + 1}. {key}")
+#     for item in range(len(store)):
+#         for key in store[item].keys():
+#             print(f"{item + 1}. {key}")
         
 
-    print("Please enter number of item you would like to buy")
-    chosen_item = int(input(">>> "))
-    return store[chosen_item - 1]
+#     print("Please enter number of item you would like to buy")
+#     chosen_item = int(input(">>> "))
+#     return store[chosen_item - 1]
 
 
 
@@ -56,7 +56,7 @@ class Tonic(Item):
             person.currenthealth += self.heal_amount
         print(f"Health after using {person.currenthealth}")
     def list_info(self):
-        print(f"{self.name}, Cost: {self.cost} gold, Aciton: +{self.heal_amount} health")
+        print(f"{self.name}, Cost: {self.cost} gold, Action: +{self.heal_amount} health")
 class Armor(Item):
     def __init__(self, name, cost, armor_amount):
         super().__init__(name, cost)
@@ -83,15 +83,26 @@ class Store:
         for i in range(len(self.items)):
             print(f"{i + 1}.)")
             self.items[i].list_info()
-        print("Please enter number of item you would like to buy")
-        chosen_item = int(input(">>> "))
-        chosen_store_item = self.items[chosen_item - 1]
-        if person.gold >= chosen_store_item.cost:
-            person.gold -= chosen_store_item.cost
-            print(f"You purchased {chosen_store_item.name}")
-            hero.items.append(chosen_store_item)
-        else:
-            print(f"You do not have enough gold! You only have {person.gold}")
+        print(f"{len(self.items) + 1}. Quit")
+        print("Please enter number of item you would like to buy\n")
+
+        while True:
+            try:
+                chosen_item = int(input(">>> "))
+                break
+            except ValueError:
+                print("Please enter a valid number")
+        if chosen_item == len(self.items) + 1:
+            print(">>  LEAVING STORE.... <<")
+            pass
+        else:                
+            chosen_store_item = self.items[chosen_item - 1]
+            if person.gold >= chosen_store_item.cost:
+                person.gold -= chosen_store_item.cost
+                print(f"You purchased {chosen_store_item.name}")
+                hero.items.append(chosen_store_item)
+            else:
+                print(f"You do not have enough gold! You only have {person.gold}")
 
 store = Store()
 store.create_armor("Armor", 2, 2)
@@ -234,7 +245,7 @@ medic = Medic("medic", 10, 3)
 shadow = Shadow("shadow", 1, 2)
 giant = Giant("giant", 15, 6)
 mage = Mage("mage", 8, 4)
-enemies = [goblin]
+enemies = [goblin,zombie,medic,shadow,giant,mage]
 
 def main():
     # hero_health = 10
