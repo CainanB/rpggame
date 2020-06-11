@@ -14,12 +14,14 @@ class Tonic(Item):
         self.heal_amount = heal_amount
     def use(self, person):
         print(f"Health before using {person.currenthealth}")
+
         if person.currenthealth + self.heal_amount > person.health:
             person.currenthealth = person.health
         else:
             person.currenthealth += self.heal_amount
         print(f"Health after using {person.currenthealth}")
     def list_info(self):
+        # if self.name == "Revive Tonic"
         print(f"{self.name}, Cost: {self.cost} gold, Action: +{self.heal_amount} health")
 class Armor(Item):
     def __init__(self, name, cost, armor_amount):
@@ -87,6 +89,7 @@ class Store:
 store = Store()
 store.create_armor("Armor", 2, 2)
 store.create_tonic("Super Tonic", 2, 10)
+store.create_tonic("Revive Tonic", 5, 20)
 store.create_swap("Swap", 2)
 
 class Character:
@@ -197,7 +200,7 @@ class Hero(Character):
         Evade: {self.evade}
         Armor: {self.armor}
         Gold: {self.gold}
-        Swapp: {self.swapped}
+
         """)
 class Medic(Enemy):
     def __init__(self, name, health, power):
@@ -235,13 +238,13 @@ class Mage(Enemy):
         super().__init__(name, health, power, 5)
 
 goblin = Goblin("goblin", 6, 2)
-hero = Hero("hero", 20, 2)
+hero = Hero("hero", 20, 4)
 zombie = Zombie("zombie", 10, 1)
 medic = Medic("medic", 10, 3)
 shadow = Shadow("shadow", 1, 2)
 giant = Giant("giant", 15, 4)
 mage = Mage("mage", 8, 4)
-enemies = [goblin,zombie,medic,shadow,giant,mage]
+enemies = [goblin,medic,giant,mage]
 
 def main():
 
